@@ -191,7 +191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 1
-  cooldownDuration: 5
+  cooldownDuration: 1
   speed: 15
   lifeTime: 10
   instantDamage: 20

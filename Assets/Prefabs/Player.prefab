@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3670798692679690598}
   - component: {fileID: 7989224420068289325}
   - component: {fileID: 4439914270184230733}
+  - component: {fileID: 8401775284511389948}
   - component: {fileID: 6783650670846968882}
   - component: {fileID: 6094878279133960440}
   m_Layer: 6
@@ -179,7 +180,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterController: {fileID: 7989224420068289325}
   cameraTargetTransform: {fileID: 3697284700440890307}
-  fireballPrefab: {fileID: 5158092461085216788, guid: b053914da559ce24a8ceeaa1ef4e49ab, type: 3}
+  cooldownSystem: {fileID: 8401775284511389948}
+  spellPrefab: {fileID: 5158092461085216788, guid: b053914da559ce24a8ceeaa1ef4e49ab, type: 3}
   playerInfo: {fileID: 8597050368212098494}
   playerInfoText: {fileID: 5545475308779301149}
   speed: 5
@@ -190,6 +192,18 @@ MonoBehaviour:
   jumpPower: 3
   interactionDistance: 2
   maxHealth: 100
+--- !u!114 &8401775284511389948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 487656557959713930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be22fc075ca337742b599d3307c0fb4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &6783650670846968882
 MonoBehaviour:
   m_ObjectHideFlags: 0

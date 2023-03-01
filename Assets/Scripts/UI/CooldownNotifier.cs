@@ -1,18 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class CooldownNotifier : MonoBehaviour
+namespace UI
 {
-    // Start is called before the first frame update
-    void Start()
+    public class CooldownNotifier : MonoBehaviour
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        [SerializeField] 
+        private Image filler;
+    
+        public void UpdateNotifier(float fillAmount)
+        {
+            filler.fillAmount = fillAmount;
+        }
     }
 }

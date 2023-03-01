@@ -12,10 +12,10 @@ public class Spell : NetworkBehaviour, IHasCooldown
     #region Serialized Fields
 
     [SerializeField] 
-    public int id;
+    private int id;
 
     [SerializeField] 
-    public float cooldownDuration; // seconds
+    private float cooldownDuration; // seconds
     
     [SerializeField]
     private float speed;

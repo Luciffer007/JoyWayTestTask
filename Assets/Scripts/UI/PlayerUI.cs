@@ -18,6 +18,9 @@ namespace UI
     
         [SerializeField]
         public Notifier fireNotifier;
+
+        [SerializeField] 
+        public CooldownNotifier fireballCooldownNotifier;
         #endregion
 
         public void SetActive(bool value)

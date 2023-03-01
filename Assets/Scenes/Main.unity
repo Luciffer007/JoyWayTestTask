@@ -466,6 +466,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44a6c1344579f8c45a4fa9f2955291b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  filler: {fileID: 735356406}
 --- !u!222 &111944510
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6616,6 +6617,7 @@ MonoBehaviour:
   interactionText: {fileID: 1748873121}
   healthBar: {fileID: 1598433602}
   fireNotifier: {fileID: 415316121}
+  fireballCooldownNotifier: {fileID: 111944509}
 --- !u!224 &2021782304
 RectTransform:
   m_ObjectHideFlags: 0

@@ -16,6 +16,9 @@ public class PlayerController : NetworkBehaviour
     private Transform cameraTargetTransform;
 
     [SerializeField] 
+    private CooldownSystem cooldownSystem;
+
+    [SerializeField] 
     private NetworkObject spellPrefab;
     
     [SerializeField] 
@@ -212,8 +215,19 @@ public class PlayerController : NetworkBehaviour
         {
             return;
         }
+
+        Spell spell = spellPrefab.GetComponent<Spell>();
+        if (cooldownSystem.IsOnCooldown(spell.Id))
+        {
+            return;
+        }
         
-        
+        UIController.instance.PlayerUI.fireballCooldownNotifier.UpdateNotifier(0);
+        cooldownSystem.PutOnCooldown(spell, (remainingTime) =>
+        {
+            float fillAmount = (spell.CooldownDuration - remainingTime) / spell.CooldownDuration;
+            UIController.instance.PlayerUI.fireballCooldownNotifier.UpdateNotifier(fillAmount);
+        });
         
         FireServerRpc(cameraTargetTransform.position + cameraTargetTransform.forward * 1.4f, cameraTargetTransform.rotation);
     }
