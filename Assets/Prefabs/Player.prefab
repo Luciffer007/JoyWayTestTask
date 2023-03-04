@@ -178,6 +178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43676e54df96b1e42acc39fbcfb3c8bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  model: {fileID: 5020465881566758541}
   characterController: {fileID: 7989224420068289325}
   cameraTargetTransform: {fileID: 3697284700440890307}
   cooldownSystem: {fileID: 8401775284511389948}
@@ -192,6 +193,7 @@ MonoBehaviour:
   jumpPower: 3
   interactionDistance: 2
   maxHealth: 100
+  respawnTime: 5
 --- !u!114 &8401775284511389948
 MonoBehaviour:
   m_ObjectHideFlags: 0

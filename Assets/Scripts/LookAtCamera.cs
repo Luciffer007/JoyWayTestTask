@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class LookAtCamera : MonoBehaviour
 {
-    private Transform cameraTransform;
+    private Transform _cameraTransform;
 
     void Start()
     {
-        cameraTransform = GameObject.FindGameObjectWithTag("MainCamera").transform;
+        _cameraTransform = GameObject.FindGameObjectWithTag("MainCamera").transform;
     }
     
     void Update()
     {
-        transform.rotation = Quaternion.LookRotation(transform.position - cameraTransform.position);
+        transform.rotation = Quaternion.LookRotation(transform.position - _cameraTransform.position);
     }
 }

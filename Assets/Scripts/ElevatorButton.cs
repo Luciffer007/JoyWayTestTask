@@ -2,8 +2,10 @@ using UnityEngine;
 
 public class ElevatorButton : MonoBehaviour, IInteractable
 {
+    #region Serialized Fields
     [SerializeField] 
     private GameObject elevator;
+    #endregion
 
     private ElevatorController _elevatorController;
 

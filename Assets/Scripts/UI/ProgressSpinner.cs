@@ -4,11 +4,13 @@ namespace UI
 {
     public class ProgressSpinner : MonoBehaviour
     {
+        #region Serialized Fields
         [SerializeField] 
         private RectTransform fillerRectTransform;
 
         [SerializeField]
         private float rotateSpeed;
+        #endregion
 
         void Update () 
         {

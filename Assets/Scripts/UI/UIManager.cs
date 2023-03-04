@@ -2,10 +2,11 @@ using UnityEngine;
 
 namespace UI
 {
-    public class UIController : MonoBehaviour
+    public class UIManager : MonoBehaviour
     {
-        public static UIController instance;
+        public static UIManager Singleton;
 
+        #region Serialized Fields
         [SerializeField] 
         private NetworkUI networkUI;
     
@@ -17,6 +18,7 @@ namespace UI
 
         [SerializeField] 
         private ProgressSpinner connectionSpinner;
+        #endregion
 
         public NetworkUI NetworkUI => networkUI;
     
@@ -28,7 +30,21 @@ namespace UI
     
         private void Awake()
         {
-            instance = this;
+            DontDestroyOnLoad(this);
+            
+            if (Singleton != null && Singleton != this)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                Singleton = this;
+            }
+
+            NetworkUI.SetActive(true);
+            ConnectionSpinner.SetActive(false);
+            PlayerUI.SetActive(false);
+            ModalWindow.Hide();
         }
     }
 }

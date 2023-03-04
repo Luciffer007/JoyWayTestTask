@@ -6,22 +6,41 @@ namespace UI
     public class PlayerUI : MonoBehaviour
     {
         #region Serialized Fields
-
         [SerializeField] 
-        public TextMeshProUGUI hostIpText;
+        private TextMeshProUGUI hostIpText;
         
         [SerializeField] 
-        public TextMeshProUGUI interactionText;
+        private TextMeshProUGUI interactionText;
     
         [SerializeField]
-        public ProgressBar healthBar;
+        private ProgressBar healthBar;
     
         [SerializeField]
-        public Notifier fireNotifier;
+        private Notifier fireNotifier;
 
         [SerializeField] 
-        public CooldownNotifier fireballCooldownNotifier;
+        private CooldownNotifier fireballCooldownNotifier;
+
+        [SerializeField] 
+        private DeathWindow deathWindow;
         #endregion
+        
+        public TextMeshProUGUI HostIpText => hostIpText;
+        
+        public TextMeshProUGUI InteractionText => interactionText;
+        
+        public ProgressBar HealthBar => healthBar;
+        
+        public Notifier FireNotifier => fireNotifier;
+        
+        public CooldownNotifier FireballCooldownNotifier => fireballCooldownNotifier;
+        
+        public DeathWindow DeathWindow => deathWindow;
+
+        void Awake()
+        {
+            DeathWindow.SetActive(false);
+        }
 
         public void SetActive(bool value)
         {

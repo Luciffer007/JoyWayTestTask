@@ -7,6 +7,7 @@ namespace UI
 {
     public class ModalWindow : MonoBehaviour
     {
+        #region Serialized Fields
         [SerializeField] 
         private Button confirmButton;
     
@@ -18,9 +19,10 @@ namespace UI
         
         [SerializeField] 
         private TextMeshProUGUI messageText;
+        #endregion
 
-        private Action confirmHandler;
-        private Action cancelHandler;
+        private Action _confirmHandler;
+        private Action _cancelHandler;
 
         private void Awake()
         {
@@ -35,8 +37,8 @@ namespace UI
             titleText.text = title;
             messageText.text = message;
 
-            this.confirmHandler = confirmHandler;
-            this.cancelHandler = cancelHandler;
+            _confirmHandler = confirmHandler;
+            _cancelHandler = cancelHandler;
 
             if (cancelButtonLabel != null)
             {
@@ -52,20 +54,20 @@ namespace UI
             
             cancelButton.gameObject.SetActive(false);
             
-            confirmHandler = null;
-            cancelHandler = null;
+            _confirmHandler = null;
+            _cancelHandler = null;
         }
         
         private void OnClickConfirmButtonHandler()
         {
-            confirmHandler?.Invoke();
+            _confirmHandler?.Invoke();
             
             Hide();
         }
     
         private void OnClickCancelButtonHandler()
         {
-            cancelHandler?.Invoke();
+            _cancelHandler?.Invoke();
             
             Hide();
         }

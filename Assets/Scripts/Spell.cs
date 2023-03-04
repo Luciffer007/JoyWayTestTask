@@ -10,7 +10,6 @@ using UnityEditor;
 public class Spell : NetworkBehaviour, IHasCooldown
 {
     #region Serialized Fields
-
     [SerializeField] 
     private int id;
 
@@ -24,10 +23,10 @@ public class Spell : NetworkBehaviour, IHasCooldown
     private float lifeTime;
     
     [SerializeField] 
-    public int instantDamage;
+    private int instantDamage;
     
     [SerializeField]
-    public bool overTimeDamage;
+    internal bool overTimeDamage;
     
     [HideInInspector]
     public float damagePerTick;

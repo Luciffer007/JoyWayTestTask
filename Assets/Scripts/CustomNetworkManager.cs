@@ -26,7 +26,7 @@ public class CustomNetworkManager : MonoBehaviour
     {
         string localIp = IPHelper.GetLocalIPAddress();
         
-        UIController.instance.PlayerUI.hostIpText.text = "Host IP: \n" + localIp;
+        UIManager.Singleton.PlayerUI.HostIpText.text = "Host IP: \n" + localIp;
         
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(localIp, (ushort)7777);
         NetworkManager.Singleton.StartHost();
@@ -34,13 +34,13 @@ public class CustomNetworkManager : MonoBehaviour
     
     public void StartClient(string ip)
     {
-        UIController.instance.PlayerUI.hostIpText.text = "Host IP: \n" + ip;
+        UIManager.Singleton.PlayerUI.HostIpText.text = "Host IP: \n" + ip;
         
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(ip, (ushort)7777);
         NetworkManager.Singleton.GetComponent<UnityTransport>().OnTransportEvent += OnTransportEvent;
         NetworkManager.Singleton.StartClient();
         
-        UIController.instance.ConnectionSpinner.Show();
+        UIManager.Singleton.ConnectionSpinner.Show();
     }
 
     private void OnTransportEvent(NetworkEvent type, ulong id, ArraySegment<byte> payload, float time)
@@ -50,17 +50,17 @@ public class CustomNetworkManager : MonoBehaviour
         switch (type)
         {
             case NetworkEvent.Disconnect:
-                UIController.instance.ConnectionSpinner.Hide();
+                UIManager.Singleton.ConnectionSpinner.Hide();
                 
-                UIController.instance.ModalWindow.Show("Error massage", "Failed to connect to host", "Ok", () =>
+                UIManager.Singleton.ModalWindow.Show("Error massage", "Failed to connect to host", "Ok", () =>
                 {
-                    UIController.instance.NetworkUI.ClearIpAddressInputField();
-                    UIController.instance.NetworkUI.interactable = true;
+                    UIManager.Singleton.NetworkUI.ClearIpAddressInputField();
+                    UIManager.Singleton.NetworkUI.interactable = true;
                 });
                 
                 break;
             case NetworkEvent.Connect:
-                UIController.instance.ConnectionSpinner.Hide();
+                UIManager.Singleton.ConnectionSpinner.Hide();
                 break;
         }
     }

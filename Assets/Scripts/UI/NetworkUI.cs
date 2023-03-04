@@ -6,6 +6,7 @@ namespace UI
 {
     public class NetworkUI : MonoBehaviour
     {
+        #region Serialized Fields
         [SerializeField] 
         private TMP_InputField ipAddressInputField;
     
@@ -14,6 +15,7 @@ namespace UI
     
         [SerializeField] 
         private Button joinButton;
+        #endregion
 
         public bool interactable
         {
@@ -39,7 +41,7 @@ namespace UI
 
         private bool _interactable = false;
 
-        private void Awake()
+        void Awake()
         {
             hostButton.onClick.AddListener(OnClickHostButtonHandler);
             joinButton.onClick.AddListener(OnClickJoinButtonHandler);

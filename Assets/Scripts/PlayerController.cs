@@ -2,21 +2,21 @@ using System;
 using System.Collections;
 using TMPro;
 using UI;
+using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(PlayerInput), typeof(CharacterController), typeof(CooldownSystem))]
+[RequireComponent(typeof(NetworkObject), typeof(ClientNetworkTransform))]
 public class PlayerController : NetworkBehaviour
 {
     #region Serialized Fields
-    [SerializeField]
-    private CharacterController characterController;
-    
     [SerializeField] 
-    private Transform cameraTargetTransform;
+    private GameObject model;
 
     [SerializeField] 
-    private CooldownSystem cooldownSystem;
+    private Transform cameraTargetTransform;
 
     [SerializeField] 
     private NetworkObject spellPrefab;
@@ -50,6 +50,9 @@ public class PlayerController : NetworkBehaviour
 
     [SerializeField] 
     private int maxHealth;
+    
+    [SerializeField] 
+    private float respawnTime;
     #endregion
 
     #region Constants
@@ -57,18 +60,34 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region Components
+    private CharacterController _characterController;
+    
+    private CooldownSystem _cooldownSystem;
+
+    private ClientNetworkTransform _networkTransform;
+    
     private Camera _camera;
 
     private IInteractable _interactableObject;
     #endregion
     
     #region Properties
-    private bool IsGrounded => characterController.isGrounded;
+    private bool IsGrounded => _characterController.isGrounded;
+
+    private bool IsDead => Health == 0;
     
     private float Health
     {
         get => _health.Value;
-        set => _health.Value = Math.Max(0, value);
+        set
+        {
+            _health.Value = Math.Max(0, value);
+            
+            if (_health.Value == 0)
+            {
+                Die();
+            }
+        }
     }
     #endregion
 
@@ -92,28 +111,32 @@ public class PlayerController : NetworkBehaviour
 
         if (IsOwner)
         {
+            _characterController = GetComponent<CharacterController>();
+            _cooldownSystem = GetComponent<CooldownSystem>();
+            _networkTransform = GetComponent<ClientNetworkTransform>();
+            
             // Cursor lock when player is in game and game has focus
             Cursor.lockState = CursorLockMode.Locked;
             
             // To ignore the owner model by the camera
             LayerHelper.MoveToLayer(transform, LayerMask.NameToLayer("Owner"));
             
-            UIController.instance.NetworkUI.SetActive(false);
-            UIController.instance.PlayerUI.SetActive(true);
+            UIManager.Singleton.NetworkUI.SetActive(false);
+            UIManager.Singleton.PlayerUI.SetActive(true);
             
             playerInfo.SetActive(false);
 
-            UIController.instance.PlayerUI.healthBar.SetMaxValue(maxHealth);
-            UIController.instance.PlayerUI.healthBar.SetValue(maxHealth);
+            UIManager.Singleton.PlayerUI.HealthBar.SetMaxValue(maxHealth);
+            UIManager.Singleton.PlayerUI.HealthBar.SetValue(maxHealth);
 
             _health.OnValueChanged += (previousValue, newValue) =>
             {
-                UIController.instance.PlayerUI.healthBar.SetValue((int) Math.Ceiling(newValue));
+                UIManager.Singleton.PlayerUI.HealthBar.SetValue((int) Math.Ceiling(newValue));
             };
 
             _fireCounter.OnValueChanged += (previousValue, newValue) =>
             {
-                UIController.instance.PlayerUI.fireNotifier.UpdateCounter(newValue);
+                UIManager.Singleton.PlayerUI.FireNotifier.UpdateCounter(newValue);
             };
             
             GameObject cameraObject = GameObject.FindGameObjectWithTag("MainCamera");
@@ -127,6 +150,14 @@ public class PlayerController : NetworkBehaviour
         Health = maxHealth;
     }
 
+    void Start()
+    {
+        if (IsOwner)
+        {
+            transform.position = RespawnManager.Singleton.GetRespawnPosition();
+        }
+    }
+    
     void Update()
     {
         if (!IsOwner)
@@ -134,7 +165,7 @@ public class PlayerController : NetworkBehaviour
             playerInfoText.text = "Health: " + Health;
             return;
         }
-        
+
         ApplyMovementDirection();
         ApplyGravity();
         ApplyMovement();
@@ -165,7 +196,7 @@ public class PlayerController : NetworkBehaviour
 
     private void ApplyMovement()
     {
-        characterController.Move(_direction * speed * Time.deltaTime);
+        _characterController.Move(_direction * speed * Time.deltaTime);
     }
 
     public void Move(InputAction.CallbackContext context)
@@ -200,6 +231,11 @@ public class PlayerController : NetworkBehaviour
         {
             return;
         }
+        
+        if (IsDead)
+        {
+            return;
+        }
 
         _velocity += jumpPower;
     }
@@ -216,17 +252,22 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
+        if (IsDead)
+        {
+            return;
+        }
+
         Spell spell = spellPrefab.GetComponent<Spell>();
-        if (cooldownSystem.IsOnCooldown(spell.Id))
+        if (_cooldownSystem.IsOnCooldown(spell.Id))
         {
             return;
         }
         
-        UIController.instance.PlayerUI.fireballCooldownNotifier.UpdateNotifier(0);
-        cooldownSystem.PutOnCooldown(spell, (remainingTime) =>
+        UIManager.Singleton.PlayerUI.FireballCooldownNotifier.UpdateNotifier(0);
+        _cooldownSystem.PutOnCooldown(spell, (remainingTime) =>
         {
             float fillAmount = (spell.CooldownDuration - remainingTime) / spell.CooldownDuration;
-            UIController.instance.PlayerUI.fireballCooldownNotifier.UpdateNotifier(fillAmount);
+            UIManager.Singleton.PlayerUI.FireballCooldownNotifier.UpdateNotifier(fillAmount);
         });
         
         FireServerRpc(cameraTargetTransform.position + cameraTargetTransform.forward * 1.4f, cameraTargetTransform.rotation);
@@ -245,6 +286,11 @@ public class PlayerController : NetworkBehaviour
         {
             return;
         }
+        
+        if (IsDead)
+        {
+            return;
+        }
 
         _interactableObject?.Interact();
     }
@@ -252,8 +298,13 @@ public class PlayerController : NetworkBehaviour
     void DrawInteractionRay()
     {
         _interactableObject = null;
-        UIController.instance.PlayerUI.interactionText.text = "";
+        UIManager.Singleton.PlayerUI.InteractionText.text = "";
 
+        if (IsDead)
+        {
+            return;
+        }
+        
         if (_camera == null)
         {
             return;
@@ -268,7 +319,7 @@ public class PlayerController : NetworkBehaviour
 
             if (_interactableObject != null)
             {
-                UIController.instance.PlayerUI.interactionText.text = _interactableObject.GetDescription();
+                UIManager.Singleton.PlayerUI.InteractionText.text = _interactableObject.GetDescription();
             }
         }
     }
@@ -277,6 +328,11 @@ public class PlayerController : NetworkBehaviour
     {
         Health -= instantDamage;
 
+        if (IsDead)
+        {
+            return;
+        }
+        
         if (overTimeDamage)
         {
             DamageOverTime(damagePerTick, tickDuration, duration);
@@ -303,5 +359,61 @@ public class PlayerController : NetworkBehaviour
         }
         
         _fireCounter.Value--;
+    }
+    
+    private void Die()
+    {
+        // Clear all dots
+        StopAllCoroutines();
+        _fireCounter.Value = 0;
+
+        DieClientRpc();
+    }
+
+    [ClientRpc]
+    private void DieClientRpc()
+    {
+        if (IsOwner)
+        {
+            UIManager.Singleton.PlayerUI.DeathWindow.SetActive(true);
+            _characterController.enabled = false;
+            StartCoroutine(Respawn());
+        }
+
+        playerInfo.SetActive(false);
+        model.SetActive(false);
+    }
+
+    private IEnumerator Respawn()
+    {
+        yield return new WaitForSeconds(respawnTime);
+        
+        _networkTransform.Teleport(RespawnManager.Singleton.GetRespawnPosition(), transform.rotation, transform.localScale);
+
+        // Delay before appearing
+        yield return new WaitForSeconds(0.2f);
+        
+        RespawnServerRpc();
+    }
+    
+    [ServerRpc]
+    private void RespawnServerRpc()
+    {
+        Health = maxHealth;
+        
+        RespawnClientRpc();
+    }
+    
+    [ClientRpc]
+    private void RespawnClientRpc()
+    {
+        if (IsOwner)
+        {
+            UIManager.Singleton.PlayerUI.DeathWindow.SetActive(false);
+            _characterController.enabled = true;
+        }
+        
+        playerInfo.SetActive(true);
+        model.SetActive(true);
     }
 }

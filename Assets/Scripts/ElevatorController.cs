@@ -3,8 +3,10 @@ using UnityEngine;
 
 public class ElevatorController : NetworkBehaviour
 {
+    #region Serialized Fields
     [SerializeField]
     private float speed = 3f;
+    #endregion
     
     private int _currentDirection = -1;
 
@@ -25,7 +27,7 @@ public class ElevatorController : NetworkBehaviour
             transform.position = transform.position + Vector3.down * Time.deltaTime * speed;
         }
     }
-
+    
     private void OnTriggerEnter(Collider collider)
     {
         if (collider.transform.CompareTag("Player"))

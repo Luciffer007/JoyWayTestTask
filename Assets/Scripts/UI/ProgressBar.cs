@@ -5,8 +5,10 @@ namespace UI
 {
     public class ProgressBar : MonoBehaviour
     {
+        #region Serialized Fields
         [SerializeField]
         private Slider slider;
+        #endregion
 
         public void SetMaxValue(int maxValue)
         {

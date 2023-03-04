@@ -5,8 +5,10 @@ namespace UI
 {
     public class Notifier : MonoBehaviour
     {
+        #region Serialized Fields
         [SerializeField]
         private TextMeshProUGUI counter;
+        #endregion
 
         public void UpdateCounter(int count)
         {
