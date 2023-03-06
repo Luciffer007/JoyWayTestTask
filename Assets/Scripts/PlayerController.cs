@@ -4,11 +4,12 @@ using TMPro;
 using UI;
 using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(PlayerInput), typeof(CharacterController), typeof(CooldownSystem))]
-[RequireComponent(typeof(NetworkObject), typeof(ClientNetworkTransform))]
+[RequireComponent(typeof(NetworkObject), typeof(NetworkTransform))]
 public class PlayerController : NetworkBehaviour
 {
     #region Serialized Fields
@@ -64,7 +65,7 @@ public class PlayerController : NetworkBehaviour
     
     private CooldownSystem _cooldownSystem;
 
-    private ClientNetworkTransform _networkTransform;
+    private NetworkTransform _networkTransform;
     
     private Camera _camera;
 
@@ -109,11 +110,15 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        if (IsOwner)
+        if (NetworkManager.Singleton.IsHost)
         {
             _characterController = GetComponent<CharacterController>();
+        }
+
+        if (IsOwner)
+        {
             _cooldownSystem = GetComponent<CooldownSystem>();
-            _networkTransform = GetComponent<ClientNetworkTransform>();
+            _networkTransform = GetComponent<NetworkTransform>();
             
             // Cursor lock when player is in game and game has focus
             Cursor.lockState = CursorLockMode.Locked;
@@ -160,9 +165,14 @@ public class PlayerController : NetworkBehaviour
     
     void Update()
     {
-        if (!IsOwner)
+        /*if (!IsOwner)
         {
             playerInfoText.text = "Health: " + Health;
+            return;
+        }*/
+
+        if (!NetworkManager.Singleton.IsHost)
+        {
             return;
         }
 
@@ -201,7 +211,18 @@ public class PlayerController : NetworkBehaviour
 
     public void Move(InputAction.CallbackContext context)
     {
-        _input = context.ReadValue<Vector2>();
+        if (!IsOwner)
+        {
+            return;
+        }
+
+        MoveServerRpc(context.ReadValue<Vector2>());
+    }
+    
+    [ServerRpc]
+    private void MoveServerRpc(Vector2 input)
+    {
+        _input = input;
     }
     
     public void Rotate(InputAction.CallbackContext context)
@@ -210,9 +231,13 @@ public class PlayerController : NetworkBehaviour
         {
             return;
         }
-        
-        Vector2 value = context.ReadValue<Vector2>();
-        
+
+        RotateServerRpc(context.ReadValue<Vector2>());
+    }
+    
+    [ServerRpc]
+    private void RotateServerRpc(Vector2 value)
+    {
         transform.rotation = Quaternion.Euler(new Vector3(0.0f, value.x * lookSpeed + transform.rotation.eulerAngles.y, 0.0f));
         
         _verticalRotation += value.y * lookSpeed;
@@ -226,7 +251,13 @@ public class PlayerController : NetworkBehaviour
         {
             return;
         }
-        
+
+        JumpServerRpc();
+    }
+    
+    [ServerRpc]
+    private void JumpServerRpc()
+    {
         if (!IsGrounded)
         {
             return;
