@@ -17,12 +17,12 @@ public class ElevatorController : NetworkBehaviour
             return;
         }
         
-        if (transform.position.y < 8 && _currentDirection == 1)
+        if (transform.position.y < 9 && _currentDirection == 1)
         {
             transform.position = transform.position + Vector3.up * Time.deltaTime * speed;
         }
         
-        if (transform.position.y > 3 && _currentDirection == -1)
+        if (transform.position.y > 1 && _currentDirection == -1)
         {
             transform.position = transform.position + Vector3.down * Time.deltaTime * speed;
         }
